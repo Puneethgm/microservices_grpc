@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package profile;
+
+service ProfileService {
+  rpc GetProfile (ProfileRequest) returns (ProfileReply) {}
+  rpc UpdateCity (UpdateCityRequest) returns (UpdateCityReply) {}
+}
+
+message ProfileRequest {
+  string user_id = 1;
+}
+
+message ProfileReply {
+  string user_id = 1;
+  string name = 2;
+  string preferred_city = 3;
+  string preferred_country = 4;
+  bool success = 5;
+  string error_message = 6;
+}
+
+message UpdateCityRequest {
+  string user_id = 1;
+  string city = 2;
+  string country_code = 3;
+}
+
+message UpdateCityReply {
+  bool success = 1;
+  string message = 2;
+}
