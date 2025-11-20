@@ -15,9 +15,9 @@ import weather_pb2_grpc
 # Simple in-memory user storage:
 USERS_DB = {
     "puneeth": {"name": "Puneeth G M", "preferred_city": "Bengaluru", "preferred_country": "IN"},
-    "alice": {"name": "Ravi", "preferred_city": "Bengaluru", "preferred_country": "IN"},
-    "bob": {"name": "Summit", "preferred_city": "New York", "preferred_country": "US"},
-    "charlie": {"name": "Mohan", "preferred_city": "Tokyo", "preferred_country": "JP"}
+    "ravi": {"name": "Ravi", "preferred_city": "Bengaluru", "preferred_country": "IN"},
+    "summit": {"name": "Summit", "preferred_city": "New York", "preferred_country": "US"},
+    "mohan": {"name": "Mohan", "preferred_city": "Tokyo", "preferred_country": "JP"}
 }
 
 
