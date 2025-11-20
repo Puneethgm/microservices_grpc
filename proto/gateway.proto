@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package gateway;
+
+service GatewayService {
+  rpc GetDashboard (DashboardRequest) returns (DashboardReply) {}
+  rpc GetUserWeather (UserWeatherRequest) returns (UserWeatherReply) {}
+}
+
+message DashboardRequest {
+  string user_id = 1;
+}
+
+message DashboardReply {
+  string greeting = 1;
+  UserInfo user_info = 2;
+  WeatherInfo weather_info = 3;
+  bool success = 4;
+  string error_message = 5;
+}
+
+message UserWeatherRequest {
+  string user_id = 1;
+}
+
+message UserWeatherReply {
+  string user_id = 1;
+  string city = 2;
+  WeatherInfo weather_info = 3;
+  bool success = 4;
+  string error_message = 5;
+}
+
+message UserInfo {
+  string user_id = 1;
+  string name = 2;
+  string preferred_city = 3;
+  string preferred_country = 4;
+}
+
+message WeatherInfo {
+  string city = 1;
+  string country = 2;
+  double temperature_celsius = 3;
+  string description = 4;
+  double humidity = 5;
+  double wind_speed = 6;
+}

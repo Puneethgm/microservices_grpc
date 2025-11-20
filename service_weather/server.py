@@ -1,112 +1,89 @@
-import threading
 from concurrent import futures
 import grpc
-from flask import Flask, jsonify, request
+import requests
 import sys
 import os
-import requests
-import json
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import weather_pb2
 import weather_pb2_grpc
 
+
 class WeatherServicer(weather_pb2_grpc.WeatherServiceServicer):
     def GetWeather(self, request, context):
+        city = request.city
+        country_code = request.country_code or ""
+        
+        print(f"[WeatherService] Getting weather for: {city}, {country_code}")
+        
         try:
-            city = request.city
             if not city:
                 return weather_pb2.WeatherReply(
                     success=False,
                     error_message="City name is required"
                 )
             
-            url = f"http://wttr.in/{city}?format=j1"
+            query = f"{city},{country_code}" if country_code else city
+            url = f"http://wttr.in/{query}?format=j1"
             response = requests.get(url, timeout=10)
             
-            if response.status_code != 200:
+            if response.status_code == 200:
+                data = response.json()
+                current = data['current_condition'][0]
+                area = data['nearest_area'][0]
+                
+                result = weather_pb2.WeatherReply(
+                    city=city.title(),
+                    country=area.get('country', [{'value': 'Unknown'}])[0]['value'],
+                    temperature_celsius=float(current['temp_C']),
+                    description=current['weatherDesc'][0]['value'],
+                    humidity=float(current['humidity']),
+                    wind_speed=float(current['windspeedKmph']) * 0.277778,  # Convert to m/s
+                    success=True,
+                    error_message=""
+                )
+                
+                print(f"[WeatherService] ✅ Success: {current['temp_C']}°C, {current['weatherDesc'][0]['value']}")
+                return result
+            else:
+                error_msg = f"Weather API returned status {response.status_code}"
+                print(f"[WeatherService] ❌ Error: {error_msg}")
                 return weather_pb2.WeatherReply(
                     success=False,
-                    error_message=f"Weather API returned status {response.status_code}"
+                    error_message=error_msg
                 )
-            
-            data = response.json()
-            current = data['current_condition'][0]
-            area = data['nearest_area'][0]
-            
-            return weather_pb2.WeatherReply(
-                city=city.title(),
-                country=area.get('country', [{'value': 'Unknown'}])[0]['value'],
-                temperature_celsius=float(current['temp_C']),
-                description=current['weatherDesc'][0]['value'],
-                humidity=float(current['humidity']),
-                wind_speed=float(current['windspeedKmph']) * 0.277778,
-                success=True,
-                error_message=""
-            )
-            
+                
         except requests.exceptions.RequestException as e:
+            error_msg = f"Network error: {str(e)}"
+            print(f"[WeatherService] ❌ Network error: {error_msg}")
             return weather_pb2.WeatherReply(
                 success=False,
-                error_message=f"Network error: {str(e)}"
+                error_message=error_msg
             )
         except Exception as e:
+            error_msg = f"Service error: {str(e)}"
+            print(f"[WeatherService] ❌ Exception: {error_msg}")
             return weather_pb2.WeatherReply(
                 success=False,
-                error_message=f"Service error: {str(e)}"
+                error_message=error_msg
             )
 
 
-def serve_grpc():
+def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     weather_pb2_grpc.add_WeatherServiceServicer_to_server(WeatherServicer(), server)
     server.add_insecure_port('[::]:50052')
     server.start()
-    print("Weather gRPC server started on port 50052")
-    server.wait_for_termination()
-
-
-app = Flask(__name__)
-
-
-@app.route('/')
-def index():
-    return jsonify({
-        "service": "weather_service",
-        "status": "ok",
-        "description": "Weather microservice using wttr.in API"
-    })
-
-
-@app.route('/weather/<city>')
-def get_weather_http(city):
+    print("🌤️  Weather gRPC Server started on port 50052")
+    print("Press Ctrl+C to stop...")
+    
     try:
-        with grpc.insecure_channel('localhost:50052') as channel:
-            stub = weather_pb2_grpc.WeatherServiceStub(channel)
-            request = weather_pb2.WeatherRequest(city=city)
-            response = stub.GetWeather(request, timeout=15)
-            
-            return jsonify({
-                "city": response.city,
-                "country": response.country,
-                "temperature_celsius": response.temperature_celsius,
-                "description": response.description,
-                "humidity": response.humidity,
-                "wind_speed_ms": response.wind_speed,
-                "success": response.success,
-                "error": response.error_message if not response.success else None
-            })
-    except Exception as e:
-        return jsonify({"error": str(e), "success": False}), 500
+        server.wait_for_termination()
+    except KeyboardInterrupt:
+        print("\n⏹️  Server stopped.")
+        server.stop(0)
 
 
 if __name__ == '__main__':
-    grpc_thread = threading.Thread(target=serve_grpc, daemon=True)
-    grpc_thread.start()
-    
-    print("Weather service starting...")
-    print("gRPC server: localhost:50052")
-    print("HTTP server: localhost:5003")
-    
-    app.run(host='0.0.0.0', port=5003)
+    serve()

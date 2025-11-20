@@ -30,7 +30,7 @@ grpc/
 │   └── server.py              # Profile gRPC + HTTP server
 ├── generate_proto.ps1         # Generate gRPC Python code
 ├── requirements.txt           # Dependencies
-└── README.md                  
+└── README.md
 ```
 
 ### 1. Setup Environment
@@ -68,24 +68,29 @@ python .\service_a\app.py
 python .\service_gateway\app.py
 ```
 
-##  Testing Examples
+## 🧪 Testing Examples
+
+### Basic Examples (Complete JSON Output)
 
 ```powershell
 # Simple greeting (original example)
-Invoke-RestMethod http://localhost:5002/hello/puneeth
+Invoke-WebRequest -Uri "http://localhost:5002/hello/puneeth" -UseBasicParsing | Select-Object -ExpandProperty Content
 
 # Weather for any city
-Invoke-RestMethod http://localhost:5000/weather/London
+Invoke-WebRequest -Uri "http://localhost:5000/weather/London" -UseBasicParsing | Select-Object -ExpandProperty Content
 
 # User profile
-Invoke-RestMethod http://localhost:5000/user/puneeth
+Invoke-WebRequest -Uri "http://localhost:5000/user/puneeth" -UseBasicParsing | Select-Object -ExpandProperty Content
 ```
-```powershell
-# Weather for user's preferred city
-Invoke-RestMethod http://localhost:5000/user/puneeth/weather
 
-# Complete dashboard (calls 3 services)
-Invoke-RestMethod http://localhost:5000/dashboard/puneeth
+### Advanced Examples (Multi-Service gRPC Calls)
+
+```powershell
+# Weather for user's preferred city (Profile + Weather services via gRPC)
+Invoke-WebRequest -Uri "http://localhost:5000/user/puneeth/weather" -UseBasicParsing | Select-Object -ExpandProperty Content
+
+# Complete dashboard (calls 3 services via gRPC: Hello + Profile + Weather)
+Invoke-WebRequest -Uri "http://localhost:5000/dashboard/puneeth" -UseBasicParsing | Select-Object -ExpandProperty Content
 ```
 
 ## 📊 API Endpoints
@@ -118,20 +123,27 @@ Pre-configured users for testing:
 - **Weather Service** (Port 50052): Real weather data from wttr.in API
 - **Profile Service** (Port 50053): User preferences and data
 
-
-## Test Commands
+## 🚀 Complete Test Commands (Full JSON Output)
 
 ```powershell
-# Test the complete flow - dashboard for puneeth
-Invoke-RestMethod http://localhost:5000/dashboard/puneeth
+# 1. Complete Dashboard (3 gRPC services: Hello + Profile + Weather)
+Invoke-WebRequest -Uri "http://localhost:5000/dashboard/puneeth" -UseBasicParsing | Select-Object -ExpandProperty Content
 
-# Test weather service
-Invoke-RestMethod http://localhost:5000/weather/Mumbai
+# 2. Real Weather Service (External API via gRPC)
+Invoke-WebRequest -Uri "http://localhost:5000/weather/Mumbai" -UseBasicParsing | Select-Object -ExpandProperty Content
 
-# Original simple example
-Invoke-RestMethod http://localhost:5002/hello/puneeth
+# 3. User Weather (Profile + Weather services orchestration)
+Invoke-WebRequest -Uri "http://localhost:5000/user/puneeth/weather" -UseBasicParsing | Select-Object -ExpandProperty Content
 
-
-$result = Invoke-RestMethod http://localhost:5000/dashboard/puneeth;
-$result | ConvertTo-Json -Depth 4
+# 4. Original Hello Service (Simple gRPC example)
+Invoke-WebRequest -Uri "http://localhost:5002/hello/puneeth" -UseBasicParsing | Select-Object -ExpandProperty Content
 ```
+
+### For Pretty Formatted JSON Output:
+
+```powershell
+# Dashboard with formatted JSON
+$result = Invoke-WebRequest -Uri "http://localhost:5000/dashboard/puneeth" -UseBasicParsing | Select-Object -ExpandProperty Content
+$result | ConvertFrom-Json | ConvertTo-Json -Depth 4
+```
+python simple_orchestrator.py dashboard puneeth
