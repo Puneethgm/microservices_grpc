@@ -1,6 +1,6 @@
 # Flask + gRPC Microservices:
 
-## 🏗️ Architecture
+## Architecture
 
 This project showcases 5 microservices communicating via gRPC:
 
@@ -10,7 +10,7 @@ This project showcases 5 microservices communicating via gRPC:
 - **`service_weather`** (Port 5003) - Weather data via wttr.in API + gRPC (Port 50052)
 - **`service_profile`** (Port 5004) - User profiles with gRPC (Port 50053)
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 grpc/
