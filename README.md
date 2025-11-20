@@ -128,9 +128,10 @@ Invoke-RestMethod http://localhost:5000/dashboard/puneeth
 # Test weather service
 Invoke-RestMethod http://localhost:5000/weather/Mumbai
 
-# Test user preferences
-Invoke-RestMethod http://localhost:5000/user/alice/weather
-
 # Original simple example
 Invoke-RestMethod http://localhost:5002/hello/puneeth
+
+
+$result = Invoke-RestMethod http://localhost:5000/dashboard/puneeth;
+$result | ConvertTo-Json -Depth 4
 ```
