@@ -33,8 +33,6 @@ grpc/
 └── README.md                  
 ```
 
-## 🚀 Quick Start
-
 ### 1. Setup Environment
 
 ```powershell
@@ -70,9 +68,7 @@ python .\service_a\app.py
 python .\service_gateway\app.py
 ```
 
-## 🧪 Testing Examples
-
-### Basic Examples
+##  Testing Examples
 
 ```powershell
 # Simple greeting (original example)
@@ -84,9 +80,6 @@ Invoke-RestMethod http://localhost:5000/weather/London
 # User profile
 Invoke-RestMethod http://localhost:5000/user/puneeth
 ```
-
-### Advanced Examples
-
 ```powershell
 # Weather for user's preferred city
 Invoke-RestMethod http://localhost:5000/user/puneeth/weather
@@ -125,15 +118,8 @@ Pre-configured users for testing:
 - **Weather Service** (Port 50052): Real weather data from wttr.in API
 - **Profile Service** (Port 50053): User preferences and data
 
-## 🌟 Real-World Features
 
-- **External API Integration**: Uses wttr.in weather API (no key required)
-- **Service Orchestration**: Gateway coordinates multiple microservice calls
-- **Error Handling**: Proper error responses and timeouts
-- **Data Transformation**: Temperature conversion, data formatting
-- **Realistic Data**: User profiles with preferences
-
-## 🧪 Test Commands
+## Test Commands
 
 ```powershell
 # Test the complete flow - dashboard for puneeth
